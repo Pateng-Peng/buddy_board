@@ -1,0 +1,65 @@
+# Python-spezifische Dateien
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtuelle Umgebungen
+venv/
+env/
+.venv/
+ENV/
+
+# Sensible Dateien
+.env
+*.pem
+*.key
+*.crt
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Docker
+*.dockerignore
+Dockerfile.*
+docker-compose.override.yml
+
+# Temporäre Dateien
+*.bak
+*.swp
+*~
+*.tmp
+
+# Editor-spezifische Dateien
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Betriebssystem-spezifische Dateien
+.DS_Store
+Thumbs.db
+
+# Projekt-spezifische Ausnahmen (falls nötig)
+# Füge hier Dateien hinzu, die ignoriert werden sollen, z. B.:
+# output/
+# data/
