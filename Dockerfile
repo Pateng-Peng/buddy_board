@@ -1,31 +1,24 @@
-# Use a multi-stage build to optimize the final image size
 FROM python:3.10 AS builder
 
 WORKDIR /app
 
-# Install pip and update it
+# Installiere pip manuell (falls nötig)
 RUN python -m ensurepip && pip install --upgrade pip
 
-# Installiere Abhängigkeiten zuerst, um den Build zu beschleunigen
+# Kopiere und installiere Abhängigkeiten
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Kopiere NUR die relevanten Verzeichnisse ins Docker-Image
-COPY crewai_agents /app/crewai_agents
-COPY crewai_agents/pitch_deck_crew.py /app/
+# Kopiere den gesamten Quellcode
+COPY . .
 
-# Create a minimal final image
+# Nutze eine leichtere Python-Version für den finalen Container
 FROM python:3.10-slim
 WORKDIR /app
-
-# Copy the installed packages and code from the builder stage
 COPY --from=builder /app /app
 
-# Install additional tools for debugging if needed
-RUN apt-get update && apt-get install -y iputils-ping
+# Stelle sicher, dass alle Abhängigkeiten installiert sind
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Verify the file structure (for debugging)
-RUN ls -lah /app
-
-# Default command to run the pitch-deck-agents
+# Starte den Flask-Server
 CMD ["python", "crewai_agents/pitch_deck_crew.py"]

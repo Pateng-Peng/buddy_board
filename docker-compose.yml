@@ -26,37 +26,37 @@ services:
   pitch-deck-agents:
     build:
       context: .
+      dockerfile: Dockerfile
     container_name: pitch_deck_agents
-    env_file:
-      - .env
     depends_on:
-      - redis
-      - n8n
-    volumes:
-      - ./pitch_deck_data:/app/pitch_deck_data
-    environment:
-      - REDIS_URL=redis://redis:6379
+      n8n:
+        condition: service_started
+        required: true
+      redis:
+        condition: service_started
+        required: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     ports:
       - "5001:5000"
-    command: ["python", "crewai_agents/pitch_deck_crew.py"]
 
   dashboard:
     build:
-      context: .
+      context: ./streamlit_dashboard
+      dockerfile: Dockerfile
     container_name: streamlit_dashboard
+    depends_on:
+      pitch-deck-agents:
+        condition: service_healthy
+        required: true
     ports:
       - "8501:8501"
     volumes:
       - ./streamlit_dashboard:/app
-    depends_on:
-      - pitch-deck-agents
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8501"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    command: ["streamlit", "run", "streamlit_dashboard/app.py", "--server.address=0.0.0.0", "--server.port=8501"]
+    command: ["streamlit", "run", "app.py"]
 
 networks:
   default:
