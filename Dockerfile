@@ -6,12 +6,13 @@ WORKDIR /app
 # Install pip and update it
 RUN python -m ensurepip && pip install --upgrade pip
 
-# Copy and install dependencies
+# Installiere Abhängigkeiten zuerst, um den Build zu beschleunigen
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Copy the entire source code
-COPY . /app
+# Kopiere NUR die relevanten Verzeichnisse ins Docker-Image
+COPY crewai_agents /app/crewai_agents
+COPY crewai_agents/pitch_deck_crew.py /app/
 
 # Create a minimal final image
 FROM python:3.10-slim
