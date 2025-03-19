@@ -5,6 +5,11 @@ services:
     ports:
       - "6380:6379"
     restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   n8n:
     image: n8nio/n8n
@@ -19,10 +24,11 @@ services:
       - ./n8n_workflows:/root/.n8n
 
   pitch-deck-agents:
-    build: ./crewai_agents
+    build:
+      context: .
     container_name: pitch_deck_agents
     env_file:
-      - ./crewai_agents/.env
+      - .env
     depends_on:
       - redis
       - n8n
@@ -31,11 +37,12 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
     ports:
-      - "5001:5000"   # Exponiert den Flask-Server über Port 5001
-    command: ["python", "pitch_deck_crew.py"]
+      - "5001:5000"
+    command: ["python", "crewai_agents/pitch_deck_crew.py"]
 
   dashboard:
-    build: ./streamlit_dashboard
+    build:
+      context: .
     container_name: streamlit_dashboard
     ports:
       - "8501:8501"
@@ -44,3 +51,13 @@ services:
     depends_on:
       - pitch-deck-agents
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: ["streamlit", "run", "streamlit_dashboard/app.py", "--server.address=0.0.0.0", "--server.port=8501"]
+
+networks:
+  default:
+    driver: bridge

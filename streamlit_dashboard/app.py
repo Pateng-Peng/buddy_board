@@ -16,6 +16,7 @@ RESULTS_URL = "http://pitch-deck-agents:5000/results"
 COMMAND_URL = "http://pitch-deck-agents:5000/command"
 
 # Status der Agenten abrufen
+@st.cache_data
 def get_agent_status():
     try:
         response = requests.get(API_URL)

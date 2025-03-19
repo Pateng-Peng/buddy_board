@@ -132,7 +132,7 @@ def command():
         research_task.description = command_text
         crew_output = pitch_deck_crew.kickoff()
         result = crew_output.tasks_output[0].raw
-        redis_client.set("research_result", result)
+        redis_client.set("research_result", result, ex=3600)
         agent_status["research_agent"]["status"] = "Completed"
         return jsonify({"result": result})
     elif agent_name == "Text Agent":
@@ -141,7 +141,7 @@ def command():
         text_task.description = command_text
         crew_output = pitch_deck_crew.kickoff()
         result = crew_output.tasks_output[1].raw
-        redis_client.set("text_result", result)
+        redis_client.set("text_result", result, ex=3600)
         agent_status["text_agent"]["status"] = "Completed"
         return jsonify({"result": result})
     else:
@@ -151,8 +151,8 @@ def start_agents():
     print("🚀 CrewAI-Agenten starten...")
     try:
         crew_output = pitch_deck_crew.kickoff()
-        redis_client.set("research_result", crew_output.tasks_output[0].raw)
-        redis_client.set("text_result", crew_output.tasks_output[1].raw)
+        redis_client.set("research_result", crew_output.tasks_output[0].raw, ex=3600)
+        redis_client.set("text_result", crew_output.tasks_output[1].raw, ex=3600)
         agent_status["research_agent"]["status"] = "Completed"
         agent_status["research_agent"]["last_activity"] = time.strftime("%Y-%m-%d %H:%M:%S")
         agent_status["text_agent"]["status"] = "Completed"
